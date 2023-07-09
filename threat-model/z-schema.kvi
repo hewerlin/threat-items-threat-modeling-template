@@ -1,0 +1,254 @@
+#: This file has the schema that enables the threat model.
+#: The software that presents this knows nothing about threat modeling.
+#: It can just read interconnected items, add reverse-references (...-of) and understand some meta items that give views or schemas.
+#: This file introduces types with their constraints and styling.
+#: Feel free to make use of the high flexibility of the approach and own this file. If you want something more or different, just add it and you are ready to go!
+
+
+H1: Meta Definitions
+Comment: There are meta items that give us the styles and schema. They teach the tool what a threat model is, so that it can guide authors to write their models.
+: 
+: These meta items are by default invisible. You can view them with the ?meta URL parameter.
+URL: ?meta
+
+H2: Type Definitions
+Meta: YES
+
+ID: TableView
+Name: Table View
+Type: TypeDefinition
+FeatherIcon: table
+
+ID: Actor
+Type: TypeDefinition
+FeatherIcon: user
+BackgroundColor: #ffd
+Color: #660
+
+ID: Database
+Type: TypeDefinition
+FeatherIcon: database
+BackgroundColor: #d0d0ff
+Color: #006
+
+ID: Component
+Type: TypeDefinition
+FeatherIcon: box
+BackgroundColor: #dbdbff
+Color: #006
+
+ID: Channel
+Type: TypeDefinition
+FeatherIcon: arrow-right-circle
+BackgroundColor: #e8e8ff
+Color: #006
+
+ID: Threat_Category
+Type: TypeDefinition
+FeatherIcon: tag
+BackgroundColor: #fdd
+Color: #600
+Key: Name
+Key: Description
+Key: FeatherIcon
+
+ID: Threat_Status
+Type: TypeDefinition
+BackgroundColor: #fdd
+Color: #600
+Key: Name
+Key: Description
+Key: FeatherIcon
+Key: BackgroundColor
+Key: Color
+
+ID: Mitigation_Category
+Type: TypeDefinition
+FeatherIcon: tag
+BackgroundColor: #dfd
+Color: #060
+Key: Name
+Key: Description
+
+ID: Mitigation_Status
+Type: TypeDefinition
+BackgroundColor: #dfd
+Color: #060
+Key: Name
+Key: Description
+Key: FeatherIcon
+Key: BackgroundColor
+Key: Color
+
+ID: Threat
+Type: TypeDefinition
+FeatherIcon: cloud-lightning
+BackgroundColor: #fdd
+Color: #600
+Key: Name
+Key: Affected
+Key: Attacker
+Key: Category
+Key: Description
+Key: SeeAlso
+Key: Likelihood
+Key: Impact
+Key: Severity
+Key: Mitigation
+Key: Status
+Key: Todo
+Key: Comment
+DisplayID: true
+
+ID: Mitigation
+Type: TypeDefinition
+FeatherIcon: umbrella
+BackgroundColor: #dfd
+Color: #060
+Key: Name
+Key: Category
+Key: Description
+Key: Todo
+Key: Ticket
+Key: Status
+DisplayID: true
+
+ID: Error
+Type: TypeDefinition
+FeatherIcon: alert-triangle
+BackgroundColor: #ffb078
+Color: #994000
+
+ID: TypeDefinition
+Name: Type Definition
+Type: TypeDefinition
+FeatherIcon: settings
+
+
+
+
+
+H2: Property Definitions
+Meta: YES
+
+
+
+ID: Things_need_a_description
+Name: Things need a description
+Type: PropertyDefinition
+SourceType: Actor
+SourceType: Database
+SourceType: Component
+SourceType: Channel
+SourceType: Threat_Status
+SourceType: Mitigation_Status
+SourceType: Threat_Category
+SourceType: Mitigation_Category
+Key: Description
+MinOccurs: 1
+
+
+ID: Threat_Affected_Property
+Type: PropertyDefinition
+Name: Threat needs a single affected entity
+SourceType: Threat
+Key: Affected
+TargetType: Actor
+TargetType: Database
+TargetType: Component
+TargetType: Channel
+MinOccurs: 1
+MaxOccurs: 1
+
+ID: Threat_Category_Property
+Type: PropertyDefinition
+Name: Threat needs a single category
+SourceType: Threat
+Key: Category
+TargetType: Threat_Category
+MinOccurs: 1
+MaxOccurs: 1
+
+ID: Threat_Mitigation_Property
+Type: PropertyDefinition
+Name: Threat can have mitigations
+SourceType: Threat
+Key: Mitigation
+TargetType: Mitigation
+
+ID: Threat_Status_Property
+Type: PropertyDefinition
+Name: Threat needs a single status
+SourceType: Threat
+Key: Status
+TargetType: Threat_Status
+MinOccurs: 1
+MaxOccurs: 1
+
+
+
+
+ID: Mitigation_Category_Property
+Type: PropertyDefinition
+Name: Mitigation needs a single category
+SourceType: Mitigation
+Key: Category
+TargetType: Mitigation_Category
+MinOccurs: 1
+MaxOccurs: 1
+
+ID: Mitigation_Status_Property
+Type: PropertyDefinition
+Name: Mitigation needs a single status
+SourceType: Mitigation
+Key: Status
+TargetType: Mitigation_Status
+MinOccurs: 1
+MaxOccurs: 1
+
+ID: Mitigation_Mitigation-of
+Type: PropertyDefinition
+Name: Mitigation must not be dangling / must mitigate at least one threat
+SourceType: Mitigation
+Key: Mitigation-of
+TargetType: Threat
+MinOccurs: 1
+
+
+
+
+
+H2: Order Constraints
+Meta: YES
+
+ID: Threat_key_order_constraint
+Name: Threat properties must be ordered consistently
+Type: KeyOrderConstraint
+SourceType: Threat
+Key: Name
+Key: Affected
+Key: Attacker
+Key: Category
+Key: Description
+Key: SeeAlso
+Key: Likelihood
+Key: Impact
+Key: Severity
+Key: Mitigation
+Key: Status
+
+ID: Mitigation_key_order_constraint
+Name: Mitigation properties must be ordered consistently
+Type: KeyOrderConstraint
+SourceType: Mitigation
+Key: Name
+Key: Category
+Key: Description
+Key: Ticket
+Key: Status
+
+ID: Mitigation_story_like_constraint
+Name: Mitigations must be placed story-like after their first mention in a threat
+Type: StoryLikeItemOrderConstraint
+SourceType: Threat
+Key: Mitigation

@@ -1,0 +1,49 @@
+#: This file has the introduction.
+#: It holds basic information about your threat model that informs the reader what to expect.
+#: Also, it has some information about the methodology.
+
+ID: Table_of_contents
+Type: TableOfContents
+
+H1: Introduction
+
+ID: Threat_Model
+Name: Threat Model: Project XYZ
+Description: ...
+FeatherIcon: coffee
+Creator: ...
+Creator: ...
+CreationDate: ...
+
+ID: Approach
+Description: The security analysis follows Shostack's Four Question Frame for Threat Modeling:
+: 
+: "1. What are we working on?
+: 2. What can go wrong?
+: 3. What are we going to do about it?
+: 4. Did we do a good job?"
+: 
+: - Shostack, Adam. Threat Modeling: Designing For Security. John Wiley & Sons, 2014.
+URL: https://github.com/adamshostack/4QuestionFrame 
+Description: This is how we follow the four question strategy:
+: 
+: 1. The first step is the system model, where we have the actors defined by the use cases we want to cover. And the system with its databases, components and communication channels we put into place to satisfy the use cases.
+: 2. We then have threats to the system, which were uncovered by a systematic approach called STRIDE per element.
+: 3. Below we propose mitigations which aim to tame these threats.
+: 4. The final part has a summary and reflection.
+: 
+: Reverse references with the suffix "-of" are an important concept.
+: The Threat items have associated references which system entities are Affected and which Mitigations are put into place here. Vice versa, the system entities are Affected-of the Threat item and the Mitigation is a Mitigation-of the Threat item.
+: 
+: These links can be browsed in both directions in the document, which allows for an interactive discovery of the threat landscape of the system.
+
+ID: Tooling
+FeatherIcon: tool
+Description: This threat model was created from the Threat Items Threat Modeling Template.
+URL: https://github.com/hewerlin/threat-items-threat-modeling-template/
+
+ID: Diagram
+Image: system-diagram.png
+Todo: Add diagram - However you like - A great tool for this purpose is draw.io !
+URL: https://draw.io/
+Description: This diagram shows the actors and the system components in the system at hand. It can be used as an orientation in the following analysis.

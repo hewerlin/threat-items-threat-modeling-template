@@ -1,0 +1,41 @@
+#: This file has progress information.
+#: A Todo list guides you through the actual threat modeling process of your system.
+#: There are items to track the status of the threat model.
+
+
+H1: Progress
+
+ID: Status_of_this_document
+Done: Feel the desire to try threat modeling with the Threat Items Threat Modeling Template.
+Done: Fork or clone the template repository - or use GitHub's "Use this template" action
+URL: https://github.com/hewerlin/threat-items-threat-modeling-template/
+#: Just replace Todo with Done when you're done with something.
+Todo: ...
+Todo: Remember: You can own this document. You can adjust everything to fit your needs!
+Todo: Replace template placeholders (many of them can be found with "XYZ" or "...")
+Todo: What are we working on? Create a shared understanding and draw a diagram of your system.
+Todo: What are we working on? Add Actor, Database, Component and Channel items in m-system-model.kvi - so that they can be linked in Threat Affected properties.
+Todo: What can go wrong? Casually brainstorm threats in t-threats-and-mitigations.kvi .
+Todo: What can go wrong? Systematically add threats in t-threats-and-mitigations.kvi - combine Threat categories (STRIDE) with affected Actor, Database, Component, Channel. This is a large Todo. Decide about an order that works best for you and break this Todo down into pieces.
+Todo: What can go wrong? Maybe refine Threat categories on the go.
+Todo: What are we going to do about it? Optional: Judge Likelihood, Impact and Severity for Threat items in t-threats-and-mitigations.kvi . This helps decide which threats MUST / SHOULD / NEED NOT be tamed.
+Todo: What are we going to do about it? Plan Mitigation items.
+Todo: What are we going to do about it? Give Mitigation items to your usual development workflow by creating issues and linking them here in Mitigation Ticket properties.
+Todo: What are we going to do about it? You can also add already implemented security features as Mitigation items with Status: DONE. This documents why a Threat is already mitigated. Your system does not need any security feature that is not the Mitigation of a Threat.
+Todo: What are we going to do about it? Actually implement the Mitigation items. ;-)
+URL: https://www.youtube.com/watch?v=zpnO9RVXBjY
+Todo: What are we going to do about it? Update and propagate status values as Mitigation items get Status: DONE and Threat items deserve Status: TAMED.
+Todo: Conclude
+Todo: Add your own Todos and track their progress here (So meta! An "Add Todos" Todo! :-D)
+FeatherIcon: check
+
+
+
+
+ID: Progress_by_status
+Text: This overview shows the current status values for threats and mitigations. These status values are aggregated bottom-up in the order mitigations → threats. They are presented here in the top-down order threats → mitigations.
+Text: Threats by status:
+Stats: Threat_Status/Status-of
+Text: Mitigations by status:
+Stats: Mitigation_Status/Status-of
+FeatherIcon: check

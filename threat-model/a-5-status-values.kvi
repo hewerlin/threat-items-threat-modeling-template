@@ -1,0 +1,70 @@
+#: This file has status values for mitigations and threats.
+#: They can be used to track them.
+
+
+
+H1: Status Values
+
+H2: Mitigation Status
+
+ID: REAFFIRM
+Type: Mitigation_Status
+Description: This mitigation status is assigned when the mitigation must be reaffirmed and checked again in new environments.
+FeatherIcon: arrow-left-circle
+BackgroundColor: #ffd
+Color: #660
+
+ID: OPEN
+Type: Mitigation_Status
+Description: This mitigation status is assigned when the mitigation is not yet implemented.
+FeatherIcon: circle
+BackgroundColor: #ffd
+Color: #660
+
+ID: DONE
+Type: Mitigation_Status
+Description: This mitigation status is assigned when the mitigation is already implemented or the system already has the desired mitigating property.
+FeatherIcon: check-circle
+
+
+
+
+
+
+
+
+
+H2: Threat Status
+
+ID: NEEDS_MITIGATION
+Type: Threat_Status
+Description: This threat status is a work in progress status, assigned when mitigations have not yet been considered.
+FeatherIcon: help-circle
+BackgroundColor: #ffd
+Color: #660
+
+ID: WILL_BE_TAMED
+Type: Threat_Status
+Description: This threat status is assigned when mitigations have been considered and with the mitigations in place, the remaining risk is acceptable. At least one required mitigation is still OPEN.
+FeatherIcon: check-circle
+BackgroundColor: #efd
+Color: #060
+
+ID: TAMED
+Type: Threat_Status
+Description: This threat status is assigned when mitigations have been considered and implemented. The remaining risk is acceptable. The required mitigations are DONE or REAFFIRM. There may be OPEN mitigations that further tame the risk but are not judged to be required.
+FeatherIcon: check-circle
+BackgroundColor: #dfd
+Color: #060
+
+ID: RISK_ACCEPTED
+Type: Threat_Status
+Description: This threat status is assigned when the risk is knowingly accepted without mitigation.
+FeatherIcon: check-circle
+BackgroundColor: #dfd
+Color: #060
+
+ID: REMAINS_RISKY
+Type: Threat_Status
+Description: This threat status is assigned when mitigations have been considered, but the found mitigations do not sufficiently tame the risk.
+FeatherIcon: meh

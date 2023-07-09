@@ -1,0 +1,12 @@
+#: items.kvi is the first file that is loaded. It includes other files that together form the threat model. See folder threat-model.
+
+Type: Import
+URL: threat-model/a-1-introduction.kvi
+URL: threat-model/a-2-progress.kvi
+URL: threat-model/a-3-views.kvi
+URL: threat-model/a-4-categories.kvi
+URL: threat-model/a-5-status-values.kvi
+URL: threat-model/m-system-model.kvi
+URL: threat-model/t-threats-and-mitigations.kvi
+URL: threat-model/y-outro.kvi
+URL: threat-model/z-schema.kvi

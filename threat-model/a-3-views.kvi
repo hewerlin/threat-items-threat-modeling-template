@@ -1,0 +1,94 @@
+#: This file has views.
+#: While later items have the actual content of the threat model with their references and back-references, these views present an overview.
+
+
+
+H1: Overview: Summarizing Views of Threats and Mitigations
+Description: This chapter provides an overview of threats and mitigations. Various table views with a different focus show a bird's-eye view of the threat situation in the system. The details are presented in the following chapters. Readers are invited to follow links and dive into the details.
+
+
+H2: Overview of Threat Model Entities
+Description: This view presents all entities of the threat model, grouped by their type. It is a table of contents on the conceptual level.
+
+ID: Overview_of_threat_model_entities
+Type: TableView
+DisplayType: TypeDefinition
+ColumnText: Type
+Column: ID
+ColumnText: Entities
+Column: Type-of
+
+
+
+
+H2: Threats by Category
+Description: This view presents threats by category. The threats have been assigned categories.
+
+ID: Threats_by_category
+Type: TableView
+DisplayType: Threat_Category
+Column: ID
+FollowKey: Category-of
+ColumnText: Threat
+Column: ID
+Column: Status
+Column: Affected
+FollowKey: Mitigation
+ColumnText: Mitigation
+Column: ID
+Column: Status
+
+
+
+
+H2: Threats by Affected Entity
+Description: This view presents threats by affected entity. It takes the affected actors, components, databases or channels into the focus and shows different ways to attack them.
+
+ID: Threats_by_affected_entity
+Type: TableView
+DisplayType: Actor
+DisplayType: Component
+DisplayType: Database
+DisplayType: Channel
+Column: ID
+FollowKey: Affected-of
+ColumnText: Threat
+Column: ID
+Column: Status
+Column: Category
+FollowKey: Mitigation
+ColumnText: Mitigation
+Column: ID
+Column: Status
+
+
+
+
+H2: Mitigations by Status
+Description: This view is mitigation-centered. It presents mitigations by their status, so we can see the work that will be needed to complete the mitigations. We can easiliy spot where mitigations tame multiple threats and which ones.
+
+ID: Mitigations_by_status
+Type: TableView
+DisplayType: Mitigation_Status
+FollowKey: Status-of
+Column: Status
+ColumnText: Mitigation
+Column: ID
+Column: Category
+Column: Mitigation-of
+
+
+
+H2: Mitigations by Category
+Description: This view is mitigation-centered. It presents mitigations by their category. Depending on the category, different people are responsible, so parts of this view may be particularly intersting for them.
+
+ID: Mitigations_by_category
+Type: TableView
+DisplayType: Mitigation_Category
+ColumnText: Category
+Column: ID
+FollowKey: Category-of
+ColumnText: Mitigation
+Column: ID
+Column: Status
+Column: Mitigation-of

@@ -1,0 +1,15 @@
+#: This file has the conclusion of the threat model.
+
+
+H1: Conclusion
+
+ID: Conclusion
+Name: Conclusion of the threat model
+Todo: Summarize the threat model findings
+Todo: Add lessons learned
+
+Todo: You may want to list contributors
+
+Comment: Next unused IDs:
+NextID: T_
+NextID: M_

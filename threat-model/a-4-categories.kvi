@@ -1,0 +1,94 @@
+#: This file has the catgories for threats and mitigations.
+#: They can be used to cluster them.
+
+
+
+H1: Category Values
+
+
+
+
+H2: Threat Categories
+Description: This section introduces category values for threats. These categories are taken from the popular STRIDE methodology. They may be refined in an iterative process. Starting from the STRIDE categories, they can be adjusted to fit to the system at hand.
+
+Todo: Get familiar with these Threat Categories. Adjust them if you need something different.
+
+ID: Spoofing
+Type: Threat_Category
+Description: ...
+FeatherIcon: key
+
+ID: Tampering
+Type: Threat_Category
+Description: ...
+FeatherIcon: edit-3
+
+ID: Repudiation
+Type: Threat_Category
+Description: ...
+FeatherIcon: video-off
+
+ID: Information_disclosure
+Type: Threat_Category
+Description: ...
+FeatherIcon: eye
+
+ID: Denial_of_service
+Type: Threat_Category
+Description: ...
+FeatherIcon: wifi-off
+
+ID: Elevation_of_privilege
+Type: Threat_Category
+Description: ...
+FeatherIcon: corner-right-up
+
+
+
+
+
+
+H2: Mitigation Categories
+Description: Mitigations are grouped in categories.
+
+Todo: Get familiar with these Mitigation Categories. Adjust them if you need something different.
+
+ID: System_design
+Type: Mitigation_Category
+Name: System design
+Description: System design mitigations are introduced with the design and implementation of the system. OPEN mitigations are enhancements for future versions of the system. This category can also contain features that are already DONE.
+
+ID: Cryptography
+Type: Mitigation_Category
+Name: Cryptography
+Description: Cryptography mitigations help to enable security goals, like confidentiality or integrity.
+
+ID: Labeling
+Type: Mitigation_Category
+Name: Labeling
+Description: Labeling mitigations are messages at user interfaces that promote security.
+
+ID: Security_test
+Type: Mitigation_Category
+Name: Security test
+Description: Security test mitigations are planned (at best automated) tests that assert security properties of the system.
+
+ID: Secure_operation
+Type: Mitigation_Category
+Name: Secure operation
+Description: Secure operation mitigations describe how the systems are securely setup and operated by administrators. Such mitigations are often assigned the status REAFFIRM and used as a checklist with new installations.
+
+ID: Development_process
+Type: Mitigation_Category
+Name: Development process
+Description: Development process mitigations are key requirements to the development process that help maintain the desired security properties with future releases and assure the quality of the software.
+
+ID: Further_analysis
+Type: Mitigation_Category
+Name: Futher analysis
+Description: Further analysis mitigations capture future analysis tasks that should be performed when the system is connected with new data sources or operated in new environments.
+
+ID: Mitigating_assumption
+Type: Mitigation_Category
+Name: Mitigating assumption
+Description: Mitigating assumptions are justified beliefs about the system, actors and attackers that help mitigate threats. Often times, they decrease the likelihood of threats or describe default behavior that will naturally tame threats.

@@ -1,0 +1,46 @@
+#: This file has your system model.
+#: All of these items can be linked as Affected in Threat items.
+
+
+
+H1: System Model
+Description: The system model answers Shostack's first question: "What are we working on". It provides concepts and terminology for the analysis.
+
+H2: Actors
+
+ID: Demo_Actor
+Type: Actor
+Name: Demo Actor
+Description: ...
+
+Todo: Add your actors
+
+
+
+
+H2: Architecture Model of the System
+Description: This sections introduces the system we designed to enable the use cases.
+
+ID: Demo_Database
+Type: Database
+Name: Demo Database
+Description: ...
+
+ID: Demo_Component
+Type: Component
+Name: Demo Component
+Description: ...
+
+ID: Another_Demo_Component
+Type: Component
+Name: Another Demo Component (for illustration)
+Description: ...
+
+ID: Demo_Channel
+Type: Channel
+Name: Demo Channel
+Description: ...
+DataFlowSource: Demo_Component
+DataFlowTarget: Demo_Database
+
+Todo: Add your Database, Component and Channel items

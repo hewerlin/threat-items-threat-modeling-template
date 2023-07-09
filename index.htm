@@ -1,0 +1,1525 @@
+﻿<!doctype html>
+<html>
+
+<head>
+	<title>KVItems Browser</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+
+
+
+	<style>
+		body {
+			margin: 0;
+			font-family: Tahoma, Arial, sans-serif;
+			font-size: 14pt;
+		}
+
+		section {
+			background: #fff;
+			margin: 10px;
+			margin-bottom: 4em;
+			border: solid #ddd 1px;
+			overflow: hidden;
+		}
+
+		.property {
+			padding: 5px;
+		}
+
+		.key {
+			color: #aaa;
+		}
+
+		.key.reverse::before {
+			content: "↩ "
+		}
+
+		@media not (max-width: 500px) {
+			.property .key {
+				width: 200px;
+				display: inline-block;
+				box-sizing: border-box;
+				text-align: right;
+				vertical-align: top;
+				padding-right: 5px;
+			}
+
+			.property .value {
+				width: calc(100% - 202px);
+				display: inline-block;
+				white-space: pre-line;
+				box-sizing: border-box;
+			}
+
+			section.has-properties .property-ID .value .badge {
+				padding-left: 200px;
+			}
+		}
+
+		@media (max-width: 500px) {
+			.property .key {}
+
+			.property .value {
+				margin-left: 10px;
+				white-space: pre-line;
+			}
+		}
+
+		.badge {
+			border: solid #ddd 1px;
+			border-radius: 10px;
+			padding: 3px;
+			display: inline-block;
+			color: inherit;
+		}
+
+		.link {
+			font-family: monospace;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		.feather {
+			width: 24px;
+			height: 24px;
+			stroke: currentColor;
+			stroke-width: 2;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+			fill: none;
+		}
+
+		.link .feather,
+		.badge .feather,
+		.badge img {
+			width: 24px;
+			height: 24px;
+			padding-right: 10px;
+			vertical-align: middle;
+		}
+
+		.property.property-ID {
+			background: #ddd;
+			padding: 0;
+		}
+
+		.property-ID .key {
+			display: none;
+		}
+
+		.property-ID .value {
+			width: 100%;
+		}
+
+		.property-ID .value .badge {
+			display: block;
+			font-size: 1.5em;
+			border-radius: 0px;
+			border-width: 0px;
+			border-bottom-width: 1px;
+		}
+
+		.property-ID .value .badge .feather,
+		.property-ID .value .badge img {
+			width: 36px;
+			height: 36px;
+		}
+
+		.property-ID .value {
+			border-left: none;
+			margin-left: 0;
+			padding: 0;
+		}
+
+		.view {
+			padding: 10px;
+			overflow: auto;
+		}
+
+		.table-view-table {
+			border-collapse: collapse;
+		}
+
+		@media not print {
+			.table-view-table td {
+				background: linear-gradient(to bottom, #fff, #eee);
+				*/
+			}
+		}
+
+		.table-view-table td {
+			border: solid #ddd 2px;
+			vertical-align: top;
+			padding: 2px;
+		}
+
+		.empty {
+			color: #888;
+			font-family: monospace;
+			font-size: 14pt;
+		}
+
+		nav .badge {
+			background: #fff;
+		}
+
+		.nav-item {
+			margin: 10px 5px;
+		}
+
+		.polaroid,
+		.icon {
+			background: #fff;
+			box-sizing: border-box;
+			margin: 10px;
+			border: solid #ddd 2px;
+			padding: 10px;
+			box-shadow: 10px 10px 10px #888;
+		}
+
+		.polaroid {
+			max-width: 100%;
+			max-height: 100vh;
+		}
+
+		.icon {
+			max-width: 96px;
+			max-height: 96px;
+		}
+
+		.section-header {
+			display: block;
+			font-variant: small-caps;
+		}
+
+		.property-H1 .key,
+		.property-H2 .key {
+			display: none;
+		}
+
+		.property-H1 .value,
+		.property-H2 .value {
+			width: 100%;
+			background: #eee;
+			border-bottom: solid #ddd 4px;
+			padding: 4px;
+		}
+
+		.property-H1 .value {
+			font-size: 4em;
+		}
+
+		.property-H2 .value {
+			font-size: 2em;
+		}
+
+		.property-Todo {
+			background: #ffb;
+		}
+	</style>
+
+
+
+
+
+	<script>
+
+		const HIDDEN_KEYS = ["ID", "Name", "FeatherIcon", "Color", "BackgroundColor"];
+		const META_TYPES = ["TypeDefinition", "PropertyDefinition", "KeyOrderConstraint", "StoryLikeItemOrderConstraint", "KeyConsistentItemOrderConstraint"];
+
+		var params = new URLSearchParams((location.search || "?").substring(1));
+		var metaParam = params.get("meta");
+		var showMeta = metaParam !== null && metaParam !== "false";
+		var noViewsParam = params.get("noviews");
+		var hideViews = noViewsParam !== null && noViewsParam !== "false";
+
+
+
+		function KVItem(properties) {
+			this.properties = properties || [];
+		}
+
+		KVItem.prototype.getAll = function (key) {
+			return this.properties.filter(function (property) {
+				return property.k == key;
+			}).map(function (property) {
+				return property.v;
+			});
+		};
+
+		KVItem.prototype.get = function (key) {
+			return this.getAll(key)[0];
+		};
+
+		KVItem.prototype.has = function (key, values) {
+			if (!Array.isArray(values)) {
+				values = [values];
+			}
+
+			return this.properties.find(function (property) {
+				return property.k == key && values.indexOf(property.v) >= 0;
+			}) !== undefined;
+		};
+
+
+
+
+
+		function KVItems() {
+			this.items = [];
+		}
+
+		KVItems.prototype.buildUniqueIndex = function (key, warningFunction) {
+			var index = {};
+			this.items.forEach(function (item) {
+				item.getAll(key).forEach(function (value) {
+					if (index[value] && warningFunction) {
+						warningFunction("Warning: " + key + ": " + value + " occurs more than once");
+					}
+
+					index[value] = item;
+				});
+			});
+			return index;
+		};
+
+		KVItems.prototype.get = function (id) {
+			if (this.idIndex) {
+				return this.idIndex[id];
+			}
+
+			return this.items.find(function (item) {
+				return item.get("ID") == id;
+			});
+		};
+
+		KVItems.prototype.has = function (id) {
+			return this.get(id) !== undefined;
+		};
+
+		KVItems.prototype.getWhere = function (key, values) {
+			return this.items.filter(function (item) {
+				return item.has(key, values);
+			});
+		};
+
+		KVItems.prototype.getUniqueValuesOf = function (key) {
+			var values = [];
+			var found = {};
+
+			this.items.forEach(function (item) {
+				item.properties.forEach(function (property) {
+					if (property.k == key) {
+						if (!found[property.v]) {
+							found[property.v] = true;
+							values.push(property.v);
+						}
+					}
+				});
+			});
+
+			return values;
+		}
+
+		KVItems.prototype.refreshReverseProperties = function () {
+			var kvitems = this;
+
+			this.items.forEach(function (item) {
+				item.properties = item.properties.filter(function (property) {
+					return !property.k.endsWith("-of");
+				});
+			});
+
+			this.items.forEach(function (item) {
+				var id = item.get("ID");
+
+				if (!id) {
+					return;
+				}
+
+				item.properties.forEach(function (property) {
+					if (property.v != id && !property.k.endsWith("-of")) {
+						var other = kvitems.get(property.v);
+						if (other) {
+							other.properties.push({
+								k: property.k + "-of",
+								v: id,
+								l: property.l
+							});
+						}
+					}
+				});
+			});
+		};
+
+		KVItems.prototype.validateSchema = function () {
+			new KVItemsSchemaValidator().validate(this);
+		};
+
+		KVItems.prototype.finalize = function () {
+			this.idIndex = this.buildUniqueIndex("ID", alert);
+			this.refreshReverseProperties();
+
+			this.validateSchema();
+
+			this.idIndex = this.buildUniqueIndex("ID");
+			this.refreshReverseProperties();
+		}
+
+
+
+		function KVItemsSchemaValidator() {
+		}
+
+		KVItemsSchemaValidator.prototype.validate = function (data) {
+			this.errors = [];
+			this.data = data;
+
+			this.validateTypes();
+			this.validatePropertyDefinitions();
+			this.validateKeyOrderConstraints();
+			this.validateStoryLikeConstraints();
+			this.validateKeyConsistentItemOrderConstraint();
+			this.includeErrors();
+
+			return this.errors.length == 0;
+		};
+
+		KVItemsSchemaValidator.prototype.validateTypes = function () {
+			var data = this.data;
+			var errors = this.errors;
+
+			var defs = data.getWhere("Type", "TypeDefinition");
+			defs.forEach(function (def) {
+				var id = def.get("ID");
+				var keys = def.getAll("Key");
+
+				if (keys.length == 0) {
+					return;
+				}
+				keys.unshift("Type");
+				keys.unshift("ID");
+
+				var instances = data.getWhere("Type", id);
+				instances.forEach(function (instance) {
+					var unknownKeys = [];
+
+					instance.properties.forEach(function (property) {
+						if (keys.indexOf(property.k) < 0 && unknownKeys.indexOf(property.k) < 0 && !property.k.endsWith("-of")) {
+							unknownKeys.push(property.k);
+						}
+					});
+
+					if (unknownKeys.length > 0) {
+						errors.push(new KVItem([
+							{ k: "Type", v: "Error" },
+							{ k: "Name", v: "Unknown " + (unknownKeys.length > 1 ? "keys" : "key") + " " + unknownKeys.join(" / ") },
+							{ k: "Rule", v: def.get("ID") },
+							{ k: "ErrorItem", v: instance.get("ID") },
+							...unknownKeys.map(function (k) {
+								return { k: "UnknownKey", v: k };
+							}),
+							...keys.map(function (k) {
+								return { k: "Suggestion", v: k };
+							}),
+							{ k: "Fix", "v": "If you want to stick to the schema, use only keys as defined in the TypeDefinition (see Suggestion)." },
+							{ k: "Fix", "v": "If you want to allow this one, add the Key in the TypeDefintion for this Type." },
+							{ k: "Fix", "v": "If you want to mute key validation for this type, remove all the Key properties in the TypeDefinition, so that all keys are accepted." }
+						]));
+					}
+				});
+			});
+		}
+
+		KVItemsSchemaValidator.prototype.validatePropertyDefinitions = function () {
+			var data = this.data;
+			var errors = this.errors;
+
+			var defs = data.getWhere("Type", "PropertyDefinition");
+			defs.forEach(function (def) {
+
+				var sourceTypes = def.getAll("SourceType");
+				var minOccurs = def.get("MinOccurs");
+				var maxOccurs = def.get("MaxOccurs");
+				var targetTypes = def.getAll("TargetType");
+				var key = def.get("Key");
+
+				var getSuggestions = function () {
+					return data.getWhere("Type", targetTypes).map(function (item) {
+						return item.get("ID");
+					}).filter(function (id) {
+						return !!id;
+					}).map(function (id) {
+						return { "k": "Suggestion", "v": id };
+					});
+				};
+
+				var sources = data.getWhere("Type", sourceTypes);
+				sources.forEach(function (source) {
+					var values = source.getAll(key);
+
+					if (minOccurs && values.length < minOccurs) {
+						errors.push(new KVItem([
+							{ k: "Type", v: "Error" },
+							{ k: "Name", v: "Too few occurrences of " + key },
+							{ k: "Fix", v: "Add " + key },
+							{ k: "Rule", v: def.get("ID") },
+							{ k: "ErrorItem", v: source.get("ID") },
+							{ k: "Key", v: key },
+							...values.map(function (value) {
+								return { k: "Value", v: value };
+							}),
+							...getSuggestions()
+						]));
+					}
+
+					if (maxOccurs && values.length > maxOccurs) {
+						errors.push(new KVItem([
+							{ k: "Type", v: "Error" },
+							{ k: "Name", v: "Too many occurrences of " + key },
+							{ k: "Fix", v: "Remove " + key + " value(s)" },
+							{ k: "Rule", v: def.get("ID") },
+							{ k: "ErrorItem", v: source.get("ID") },
+							{ k: "Key", v: key },
+							...values.map(function (value) {
+								return { k: "Value", v: value };
+							})
+						]));
+					}
+
+					if (targetTypes.length > 0) {
+						values.forEach(function (value) {
+							var target = data.get(value);
+
+							if (target) {
+								var targetType = target.get("Type");
+								if (!targetType || targetTypes.indexOf(targetType) < 0) {
+									errors.push(new KVItem([
+										{ k: "Type", v: "Error" },
+										{ k: "Name", v: "Target item is not a " + targetTypes.join("/") },
+										{ k: "Fix", v: "Make sure the referenced item has the correct type or reference another item" },
+										{ k: "Rule", v: def.get("ID") },
+										{ k: "ErrorItem", v: source.get("ID") },
+										{ k: "Key", v: key },
+										{ k: "Value", v: value },
+										...getSuggestions()
+									]));
+								}
+							} else {
+								errors.push(new KVItem([
+									{ k: "Type", v: "Error" },
+									{ k: "Name", v: "Value is not a reference to another item" },
+									{ k: "Fix", v: "Check value for typo or obsolete reference" },
+									{ k: "Rule", v: def.get("ID") },
+									{ k: "ErrorItem", v: source.get("ID") },
+									{ k: "Key", v: key },
+									{ k: "Value", v: value },
+									...getSuggestions()
+								]));
+							}
+						});
+					}
+				});
+			});
+		}
+
+		KVItemsSchemaValidator.prototype.validateKeyOrderConstraints = function () {
+			var data = this.data;
+			var errors = this.errors;
+
+			var defs = data.getWhere("Type", "KeyOrderConstraint");
+			defs.forEach(function (def) {
+
+				var sourceTypes = def.getAll("SourceType");
+				var keys = def.getAll("Key");
+
+				var sources = data.getWhere("Type", sourceTypes);
+				sources.forEach(function (source) {
+					var currentKeyIndex = 0;
+					var valid = true;
+					var fix = "";
+
+					source.properties.forEach(function (property) {
+						var keyIndex = keys.indexOf(property.k);
+
+						if (keyIndex < 0) {
+							return;
+						} else if (currentKeyIndex > keyIndex) {
+							valid = false;
+
+							if (!fix) {
+								fix = "Move " + keys[keyIndex] + " before " + keys[currentKeyIndex];
+							}
+						} else if (currentKeyIndex < keyIndex) {
+							currentKeyIndex = keyIndex;
+						}
+					});
+
+					if (!valid) {
+						errors.push(new KVItem([
+							{ k: "Type", v: "Error" },
+							{ k: "Name", v: "Item violated key order " + keys.join(" < ") },
+							{ k: "Rule", v: def.get("ID") },
+							{ k: "ErrorItem", v: source.get("ID") },
+							{ k: "Fix", v: fix }
+						]));
+					}
+				});
+			});
+		}
+
+		KVItemsSchemaValidator.prototype.validateStoryLikeConstraints = function () {
+			var data = this.data;
+			var errors = this.errors;
+
+			var defs = data.getWhere("Type", "StoryLikeItemOrderConstraint");
+			defs.forEach(function (def) {
+				var sourceTypes = def.getAll("SourceType");
+				var key = def.getAll("Key");
+
+				var seenIDs = {};
+				var nextExpectedIDs = [];
+				var previousID = null;
+				data.items.forEach(function (item) {
+					var id = item.get("ID");
+
+					if (nextExpectedIDs.length > 0) {
+						var nextExpectedID = nextExpectedIDs.shift();
+
+						if (id != nextExpectedID) {
+							errors.push(new KVItem([
+								{ k: "Type", v: "Error" },
+								{ k: "Name", v: "Item violated story-like item order constraint" },
+								{ k: "Fix", v: "Move " + nextExpectedID + " behind " + previousID },
+								{ k: "Rule", v: def.get("ID") },
+								{ k: "ErrorItem", v: previousID },
+								{ k: "ErrorItem", v: nextExpectedID }
+							]));
+
+							nextExpectedIDs = [];
+						}
+					}
+
+					if (item.has("Type", sourceTypes)) {
+						var newIDs = item.getAll(key).filter(function (id) {
+							return !seenIDs[id];
+						});
+
+						nextExpectedIDs = [...newIDs, ...nextExpectedIDs];
+					}
+
+					seenIDs[id] = true;
+					previousID = id;
+				});
+			});
+		};
+
+		KVItemsSchemaValidator.prototype.validateKeyConsistentItemOrderConstraint = function () {
+			var data = this.data;
+			var errors = this.errors;
+
+			var defs = data.getWhere("Type", "KeyConsistentItemOrderConstraint");
+			if (defs.length == 0) {
+				return;
+			}
+
+			var idIndexMap = {};
+			data.items.forEach(function (item, index) {
+				var id = item.get("ID");
+				if (id) {
+					idIndexMap[id] = index;
+				}
+			});
+
+			defs.forEach(function (def) {
+				var sourceTypes = def.getAll("SourceType");
+				var key = def.getAll("Key");
+
+				var instances = data.getWhere("Type", sourceTypes);
+				var lastIndex = -1;
+				var lastIncreaseID = null;
+
+				instances.forEach(function (instance) {
+					var value = instance.get(key);
+					var index = idIndexMap[value];
+
+					if (index === undefined) {
+						// ignore
+					} else if (lastIndex < index) {
+						lastIndex = index;
+						lastIncreaseID = instance.get("ID");
+					} else if (lastIndex > index) {
+						var id = instance.get("ID");
+
+						errors.push(new KVItem([
+							{ k: "Type", v: "Error" },
+							{ k: "Name", v: "Item violates key consistent item order constraint" },
+							{ k: "Fix", v: "Move " + id + " before " + lastIncreaseID },
+							{ k: "Rule", v: def.get("ID") },
+							{ k: "ErrorItem", v: lastIncreaseID },
+							{ k: "ErrorItem", v: id }
+						]));
+					}
+				});
+			});
+		};
+
+		KVItemsSchemaValidator.prototype.includeErrors = function () {
+			this.errors.forEach(function (error, index) {
+				error.properties.forEach(function (property) {
+					property.v = property.v || "";
+				});
+
+				error.properties = [
+					{ "k": "ID", v: "Error_" + (index + 1) },
+					...error.properties
+				];
+			});
+
+			this.data.items = [...this.errors, ...this.data.items];
+		};
+
+
+
+
+
+
+		function KVItemsParser() {
+		}
+
+		KVItemsParser.prototype.parseUncollapsed = function (text) {
+			var lines = text.split("\n");
+
+			var allProperties = lines.map(function (line, index) {
+				if (line.trim() == "") {
+					return {
+						empty: true
+					};
+				} else if (line.substring(0, 1) == " ") {
+					return {
+						v: line.substring(1).trim()
+					};
+				} else {
+					var dotIndex = line.indexOf(":");
+					if (dotIndex >= 0) {
+						return {
+							k: line.substring(0, dotIndex).trim(),
+							v: line.substring(dotIndex + 1).trim(),
+							l: index + 1
+						}
+					} else {
+						return {
+							v: line
+						}
+					}
+				}
+			});
+
+			return allProperties;
+		};
+
+		KVItemsParser.prototype.parse = function (text) {
+			var allProperties = this.parseUncollapsed(text);
+
+			var data = new KVItems();
+			var curr = null;
+			var currProperty = null;
+
+			allProperties.forEach(function (property) {
+				if (property.empty) {
+					curr = null;
+					currProperty = null;
+				} else {
+					if (curr == null) {
+						curr = new KVItem();
+						data.items.push(curr);
+					}
+
+					if (property.k) {
+						currProperty = property;
+						curr.properties.push(currProperty);
+					} else if (currProperty != null) {
+						currProperty.v = currProperty.v + "\n" + property.v;
+					}
+				}
+			});
+
+			data.finalize();
+			return data;
+		}
+
+
+
+
+
+		function KVItemsImportLoader(data) {
+			this.data = data;
+		}
+
+		KVItemsImportLoader.prototype.loadImports = async function () {
+			while (this.data.getWhere("Type", "Import").length > 0) {
+
+				var expandedItems = [];
+
+				for (const item of this.data.items) {
+					if (item.has("Type", "Import")) {
+
+						var urls = item.getAll("URL");
+						for (const url of urls) {
+							var importData = await this.loadImport(url, true);
+							expandedItems.push(...importData.items);
+						}
+					} else {
+						expandedItems.push(item);
+					}
+				}
+
+				this.data.items = expandedItems;
+
+				this.data.finalize();
+			}
+		}
+
+		KVItemsImportLoader.prototype.loadImport = async function (url, addImportMarkers) {
+			var fetchResult = await fetch(url);
+			var fetchText = await fetchResult.text();
+
+			var importData = new KVItemsParser().parse(fetchText);
+
+			if (addImportMarkers) {
+				importData.items.unshift(new KVItem([
+					{ "k": "Comment", "v": "Start of import" },
+					{ "k": "URL", "v": url }
+				]));
+
+				importData.items.push(new KVItem([
+					{ "k": "Comment", "v": "End of import" },
+					{ "k": "URL", "v": url }
+				]));
+			}
+
+			return importData;
+		}
+
+
+
+
+
+		function FeatherWidget(featherIcon) {
+			this.featherIcon = featherIcon;
+		}
+
+		FeatherWidget.prototype.render = function () {
+			var safeIcon = this.featherIcon.replace(/[^-a-z0-9]/g, "");
+
+			var span = document.createElement("span");
+			span.innerHTML = "<span title=\"" + safeIcon + " icon\"><img class=\"feather\" src=\"https://unpkg.com/feather-icons@4.29.0/dist/icons/" + safeIcon + ".svg\" /></span>";
+			return span;
+		}
+
+
+
+
+
+		function ImageWidget(src, className) {
+			this.src = src;
+			this.className = className;
+		}
+
+		ImageWidget.prototype.render = function () {
+			var imgEl = document.createElement("img");
+			if (this.className) {
+				imgEl.classList.add(this.className);
+			}
+			imgEl.src = this.src;
+
+			var aEl = document.createElement("a");
+			aEl.href = this.src;
+			aEl.rel = "noopener noreferrer";
+			aEl.target = "_blank";
+			aEl.appendChild(imgEl);
+
+			return aEl;
+		}
+
+
+
+
+		function BadgeWidget(item) {
+			this.item = item;
+		}
+
+		BadgeWidget.prototype.render = function () {
+			var type = data.get(this.item.get("Type")) || new KVItem();
+
+			var id = this.item.get("ID") || "";
+			var name = this.item.get("Name") || "";
+			var image = this.item.get("Icon") || this.item.get("Image");
+			var featherIcon = this.item.get("FeatherIcon");
+			var color = this.item.get("Color") || type.get("Color");
+			var backgroundColor = this.item.get("BackgroundColor") || type.get("BackgroundColor");
+			var displayID = (this.item.get("DisplayID") || type.get("DisplayID")) === "true";
+
+			var displayText = displayID
+				? (name ? id + ": " + name : id)
+				: (name ? name : (id || "").replace(/_/g, " "))
+
+			if (!image && !featherIcon) {
+				image = type.get("Icon") || type.get("Image");
+				featherIcon = type.get("FeatherIcon");
+			}
+
+			var badge = document.createElement("a");
+			badge.classList.add("badge");
+			badge.title = id;
+			badge.href = "#" + encodeURIComponent(id);
+
+			if (image) {
+				var imageEl = document.createElement("img");
+				imageEl.src = image;
+				badge.appendChild(imageEl);
+			}
+
+			if (featherIcon) {
+				badge.appendChild(new FeatherWidget(featherIcon).render());
+			}
+
+			if (displayText) {
+				var displayTextEl = document.createElement("span");
+				displayTextEl.textContent = displayText;
+				badge.appendChild(displayTextEl);
+			}
+
+			if (color) {
+				badge.style.color = color;
+			}
+
+			if (backgroundColor) {
+				badge.style.backgroundColor = backgroundColor;
+			}
+
+			return badge;
+		}
+
+
+
+
+
+		function LinkWidget(link) {
+			this.link = link;
+		}
+
+		LinkWidget.prototype.render = function () {
+			var aEl = document.createElement("a");
+			aEl.classList.add("link");
+			aEl.href = this.link;
+			aEl.rel = "noopener noreferrer";
+			aEl.textContent = this.link;
+			aEl.target = "_blank";
+
+			aEl.insertBefore(new FeatherWidget("external-link").render(), aEl.firstChild);
+
+			return aEl;
+		};
+
+
+
+
+		function StatsWidget(query) {
+			this.query = query;
+		}
+
+		StatsWidget.prototype.render = function () {
+			var tableEl = document.createElement("table");
+
+			var queryParts = this.query.split("/");
+
+			var type = queryParts[0];
+			var key = queryParts[1] || "";
+
+			var allTargets = [];
+			var instances = data.getWhere("Type", type);
+			instances.forEach(function (instance) {
+				allTargets.push(...instance.getAll(key));
+			});
+			allTargets = allTargets.filter(function (item, index, array) {
+				return array.indexOf(item) === index;
+			});
+
+			var totalCount = allTargets.length;
+			var totalCount1 = Math.max(1, totalCount);
+
+			instances.forEach(function (instance) {
+				var count = instance.getAll(key).length;
+
+				var tdTargetEl = document.createElement("td");
+				tdTargetEl.appendChild(new BadgeWidget(instance).render());
+
+				var tdCountEl = document.createElement("td");
+				tdCountEl.textContent = count + " ";
+
+				var tdPercentEl = document.createElement("td");
+				tdPercentEl.textContent = "(" + Math.floor(100 * count / totalCount1) + "%)";
+
+				var trEl = document.createElement("tr");
+				trEl.appendChild(tdTargetEl);
+				trEl.appendChild(tdCountEl);
+				trEl.appendChild(tdPercentEl);
+				tableEl.appendChild(trEl);
+			});
+
+
+			var tdTargetEl = document.createElement("td");
+			tdTargetEl.textContent = "All";
+
+			var tdCountEl = document.createElement("td");
+			tdCountEl.textContent = totalCount;
+
+			var tdPercentEl = document.createElement("td");
+
+			var trEl = document.createElement("tr");
+			trEl.appendChild(tdTargetEl);
+			trEl.appendChild(tdCountEl);
+			trEl.appendChild(tdPercentEl);
+			tableEl.appendChild(trEl);
+
+			return tableEl;
+		}
+
+
+
+
+		function KeyWidget(k) {
+			this.k = k;
+		}
+
+		KeyWidget.prototype.render = function () {
+			var keyEl = document.createElement("div");
+			keyEl.classList.add("key");
+			keyEl.textContent = this.k + ":";
+
+			if (this.k.endsWith("-of")) {
+				keyEl.classList.add("reverse");
+			}
+
+			return keyEl;
+		};
+
+
+
+
+
+
+		function SectionHeaderWidget(sectionID, text, assignID) {
+			this.sectionID = sectionID;
+			this.text = text;
+			this.assignID = assignID;
+		}
+
+		SectionHeaderWidget.prototype.render = function () {
+			var id = "section-" + this.sectionID;
+
+			var aEl = document.createElement("a");
+			aEl.classList.add("section-header");
+			aEl.href = "#" + id;
+			aEl.textContent = "(" + this.sectionID + ") " + this.text;
+
+			if (this.assignID) {
+				aEl.id = id;
+			}
+
+			return aEl;
+		};
+
+
+
+
+
+		function ValueWidget(k, v, sectionID) {
+			this.property = {
+				k: k,
+				v: v,
+				sectionID: sectionID
+			};
+		}
+
+		ValueWidget.prototype.render = function () {
+			var ref = data.get(this.property.v);
+
+			var valueEl = document.createElement("div");
+			valueEl.classList.add("value");
+			if (ref) {
+				valueEl.appendChild(new BadgeWidget(ref).render());
+			} else if (this.property.v.substring(0, 8) == "https://" || this.property.v.substring(0, 7) == "http://") {
+				valueEl.appendChild(new LinkWidget(this.property.v).render());
+			} else if (this.property.k == "Image") {
+				valueEl.appendChild(new ImageWidget(this.property.v, "polaroid").render());
+			} else if (this.property.k == "Icon") {
+				valueEl.appendChild(new ImageWidget(this.property.v, "icon").render());
+			} else if (this.property.k == "FeatherIcon") {
+				valueEl.appendChild(new FeatherWidget(this.property.v).render());
+			} else if (this.property.k == "NextID") {
+				valueEl.textContent = generateID(this.property.v);
+			} else if (this.property.k == "Stats") {
+				valueEl.appendChild(new StatsWidget(this.property.v).render());
+			} else if (this.property.sectionID) {
+				valueEl.appendChild(new SectionHeaderWidget(this.property.sectionID, this.property.v, true).render());
+			} else {
+				valueEl.textContent = this.property.v;
+			}
+			return valueEl;
+		};
+
+
+
+
+
+
+		function PropertyWidget(property) {
+			this.property = property;
+		}
+
+		PropertyWidget.prototype.render = function () {
+			var keyEl = new KeyWidget(this.property.k).render();
+
+			var valueEl = new ValueWidget(this.property.k, this.property.v, this.property.sectionID).render();
+
+			var container = document.createElement("div");
+			container.classList.add("property");
+			container.classList.add("property-" + this.property.k);
+			container.appendChild(keyEl);
+			container.appendChild(valueEl);
+
+			var line = this.property.l;
+			if (line) {
+				container.title = "Line " + line;
+			}
+
+			return container;
+		};
+
+
+
+
+		function KVItemWidget(item) {
+			this.item = item;
+		}
+
+		KVItemWidget.prototype.render = function () {
+			var container = document.createElement("section");
+			container.id = encodeURIComponent(this.item.get("ID"));
+
+			this.item.properties.forEach(function (property) {
+				if (property.k == "ID") {
+					container.appendChild(new PropertyWidget(property).render());
+				}
+			});
+
+			if (this.item.has("Type", "TableView") && !hideViews) {
+				container.appendChild(new TableViewWidget(this.item).render());
+			} else if (this.item.has("Type", "TableOfContents") && !hideViews) {
+				container.appendChild(new TableOfContentsWidget(this.item).render());
+			} else {
+				container.classList.add("has-properties");
+				this.item.properties.forEach(function (property) {
+					if (isKeyVisible(property.k)) {
+						container.appendChild(new PropertyWidget(property).render());
+					}
+				});
+			}
+
+			return container;
+		};
+
+
+
+
+
+		function KVItemsWidget(kvitems) {
+			this.kvitems = kvitems;
+		}
+
+		KVItemsWidget.prototype.render = function () {
+			var container = document.createElement("div");
+
+			this.kvitems.items.forEach(function (item) {
+				if (isItemVisible(item)) {
+					container.appendChild(new KVItemWidget(item).render());
+				}
+			});
+
+			return container;
+		};
+
+		function isItemVisible(item) {
+			return item.get("Hide") !== "YES"
+				&& (!isMeta(item) || showMeta);
+		}
+
+		function isKeyVisible(key) {
+			return (showMeta && key != "ID") || HIDDEN_KEYS.indexOf(key) < 0;
+		}
+
+		function isMeta(item) {
+			return item.has("Type", META_TYPES) || item.has("Meta", "YES");
+		}
+
+
+
+
+		function TableViewWidget(view) {
+			this.view = view;
+		}
+
+		TableViewWidget.prototype.render = function () {
+			var typeName = this.view.getAll("DisplayType");
+
+			var firstInstances = data.getWhere("Type", typeName);
+			var renderInstructions = this.view.properties.filter(function (property) {
+				return property.k == "Column" || property.k == "FollowKey";
+			});
+
+			var table = document.createElement("table");
+			table.classList.add("table-view-table");
+
+			table.appendChild(this.buildHeadRow());
+
+			var trs = this.buildTableRows(firstInstances, renderInstructions);
+			trs.forEach(function (tr) {
+				table.appendChild(tr);
+			});
+
+			var container = document.createElement("div");
+			container.classList.add("view");
+			container.classList.add("table-view");
+			container.appendChild(table);
+
+			return container;
+		};
+
+		TableViewWidget.prototype.buildHeadRow = function () {
+			var tr = document.createElement("tr");
+
+			var overwriteColumnText = undefined;
+
+			this.view.properties.forEach(function (property) {
+				if (property.k == "ColumnText") {
+					overwriteColumnText = property.v;
+				} else if (property.k == "Column") {
+					var column = property.v;
+
+					var td = document.createElement("td");
+
+					if (overwriteColumnText !== undefined) {
+						td.appendChild(new KeyWidget(overwriteColumnText).render());
+						overwriteColumnText = undefined;
+					} else {
+						td.appendChild(new KeyWidget(column).render());
+					}
+
+					tr.appendChild(td);
+				}
+			});
+
+			return tr;
+		};
+
+		TableViewWidget.prototype.buildTableRows = function (instances, renderInstructions) {
+			if (instances.length == 0) {
+				return [this.buildEmptyRowCell(renderInstructions)];
+			}
+
+			var view = this;
+			var trs = [];
+			instances.forEach(function (instance) {
+				trs.push(...view.buildInstanceTableRows(instance, renderInstructions));
+			});
+			return trs;
+		};
+
+		TableViewWidget.prototype.buildEmptyRowCell = function (renderInstructions) {
+			var colspan = renderInstructions.filter(function (instruction) {
+				return instruction.k == "Column";
+			}).length;
+
+			var td = document.createElement("td");
+			td.classList.add("empty");
+			td.innerHTML = "&empty; ";
+			td.setAttribute("colspan", colspan);
+
+			var tr = document.createElement("tr");
+			tr.appendChild(td);
+
+			return tr;
+		};
+
+		TableViewWidget.prototype.buildInstanceTableRows = function (instance, renderInstructions) {
+			if (renderInstructions.length == 0) {
+				return [document.createElement("tr")];
+			}
+
+			var nextInstruction = renderInstructions.shift();
+
+			var trs = this.buildInstanceTableRowsWithInstruction(instance, nextInstruction, renderInstructions);
+
+			renderInstructions.unshift(nextInstruction);
+
+			return trs;
+		}
+
+		TableViewWidget.prototype.buildInstanceTableRowsWithInstruction = function (instance, nextInstruction, renderInstructions) {
+			if (nextInstruction.k == "Column") {
+
+				var column = nextInstruction.v;
+
+				var trs = this.buildInstanceTableRows(instance, renderInstructions);
+
+				var td = document.createElement("td");
+				if (trs.length > 1) {
+					td.rowSpan = trs.length;
+				}
+
+				var values = instance.getAll(column);
+				values.forEach(function (value) {
+					td.appendChild(new ValueWidget(column, value).render());
+				});
+				if (values.length == 0) {
+					td.classList.add("empty");
+					td.innerHTML = "&empty;";
+				}
+
+				trs[0].insertBefore(td, trs[0].firstChild);
+
+				return trs;
+
+			} else if (nextInstruction.k == "FollowKey") {
+
+				var followKey = nextInstruction.v;
+
+				var nextInstances = instance.getAll(followKey).map(function (id) {
+					return data.get(id);
+				}).filter(function (item) {
+					return item !== null && item !== undefined;
+				});
+
+				return this.buildTableRows(nextInstances, renderInstructions);
+
+			}
+		}
+
+
+
+
+		function TableOfContentsWidget() {
+		}
+
+		TableOfContentsWidget.prototype.render = function () {
+			var container = document.createElement("div");
+			container.classList.add("view");
+			container.classList.add("table-of-contents-view");
+
+			var sectionCounters = [0, 0];
+			data.items.forEach(function (item) {
+				if (!isItemVisible(item)) {
+					return;
+				}
+
+				item.properties.forEach(function (property) {
+					var sectionID = undefined;
+
+					if (property.k == "H1") {
+						sectionCounters = [sectionCounters[0] + 1, 0];
+						sectionID = sectionCounters[0] + "";
+					} else if (property.k == "H2") {
+						sectionCounters = [sectionCounters[0], sectionCounters[1] + 1];
+						sectionID = sectionCounters[0] + "." + sectionCounters[1];
+					}
+
+					if (sectionID !== undefined) {
+						property.sectionID = sectionID;
+
+						container.appendChild(new SectionHeaderWidget(sectionID, property.v, false).render());
+					}
+				});
+			});
+
+			return container;
+		};
+
+
+
+
+		var editor = new SourceEditor();
+
+		function SourceEditor() {
+			this.textarea = document.createElement("textarea");
+
+			this.textarea.addEventListener("change", function () {
+				data = new KVItemsParser().parse(text);
+				refresh();
+			});
+		}
+
+		SourceEditor.prototype.bind = function () {
+			var parent = document.getElementById("editor");
+			parent.innerHTML = "";
+			parent.appendChild(this.textarea);
+		}
+
+		SourceEditor.prototype.setText = function (text) {
+			this.textarea.value = text;
+		}
+
+		SourceEditor.prototype.gotoLine = function (line) {
+			line--;
+			var selIndex = 0;
+
+			var lines = this.textarea.value.split("\n");
+			for (var i = 0; i < line; i++) {
+				selIndex += lines[i].length + 1;
+			}
+
+			var selLength = lines[line].length;
+
+			this.textarea.focus();
+			this.textarea.setSelectionRange(selIndex, selIndex + selLength);
+		}
+
+		SourceEditor.prototype.refactorIDs = function () {
+			var allProperties = new KVItemsParser().parseUncollapsed(this.textarea.value);
+
+			var counterByPrefix = {};
+			var valueMap = {};
+			allProperties.forEach(function (property) {
+				if (property.k == "ID" && /^[A-Z]_[0-9]{4}$/.test(property.v)) {
+					var prefix = property.v.substring(0, 2);
+
+					var c = (counterByPrefix[prefix] || 0) + 1;
+					counterByPrefix[prefix] = c;
+					var newID = prefix + addLeadZeros(c, 4);
+
+					valueMap[property.v] = newID;
+				}
+			});
+
+			allProperties.forEach(function (property) {
+				if (valueMap[property.v] !== undefined) {
+					property.v = valueMap[property.v];
+				}
+			});
+
+			var newSource = allProperties.map(function (property) {
+				if (property.empty) {
+					return "";
+				}
+
+				return (property.k || "") + ": " + property.v;
+			}).join("\n");
+
+			this.textarea.value = newSource;
+
+			return newSource;
+		}
+
+		function generateID(prefix, length) {
+			length = length || 4;
+
+			var c = 1;
+			var id = null;
+			do {
+				id = prefix + addLeadZeros(c, length);
+				c++;
+			} while (data.has(id));
+
+			return id;
+		}
+
+		function addLeadZeros(num, length) {
+			var str = "" + num;
+
+			while (str.length < length) {
+				str = "0" + str;
+			}
+
+			return str;
+		}
+
+
+
+
+		var data = new KVItems();
+
+		function doLoad() {
+			var url = new URLSearchParams((location.search || "?").substring(1)).get("source") || "items.kvi";
+
+			fetch(url).then(function (res) {
+				return res.text();
+			}).then(function (text) {
+				data = new KVItemsParser().parse(text);
+
+				new KVItemsImportLoader(data).loadImports().then(function () {
+					editor.setText(text);
+					render();
+				});
+			}).catch(function () {
+				var text = "Type: Error\n"
+					+ "Description: Sorry, I failed to load the data! ¯\_(ツ)_/¯\nURL: " + url + "\n"
+					+ (location.protocol == "file:" ? "Cause: The data can't be loaded if you just open the index.htm file. You need to serve the files via HTTP(S) with your favorite static file web server. With nodejs installed, for example, you can just run 'npx serve'.\n" : "");
+
+				data = new KVItemsParser().parse(text);
+				editor.setText(text);
+				render();
+
+				addLoadErrorItems();
+			});
+		}
+
+		var mainEl = null;
+
+		function render() {
+			if (!mainEl) {
+				var mainEl = document.createElement("main");
+				document.body.appendChild(mainEl);
+			}
+			mainEl.innerHTML = "";
+			mainEl.appendChild(new KVItemsWidget(data).render());
+
+			adjustDocumentTitle();
+			refresh();
+		}
+
+		function adjustDocumentTitle() {
+			for (const element of data.items) {
+				var name = element.get("Name");
+				if (name) {
+					document.title = name;
+					return;
+				}
+			}
+		}
+
+		function refresh() {
+			var focusEl = document.getElementById(location.hash.substring(1));
+			if (focusEl) {
+				focusEl.scrollIntoView();
+			}
+		}
+
+		function updateFilter() {
+			location.href = "#" + encodeURIComponent(document.getElementById("filter").value);
+		}
+
+		window.addEventListener("load", doLoad);
+		window.addEventListener("hashchange", refresh);
+	</script>
+</head>
+
+<body></body>
+
+</html>

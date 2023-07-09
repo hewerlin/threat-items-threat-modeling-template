@@ -1,0 +1,73 @@
+#: This file has the core of the threat model: Threat items and their Mitigation items.
+
+
+H1: Threat and Mitigation Details
+
+Comment: Next unused IDs:
+NextID: T_
+NextID: M_
+
+
+
+
+
+H2: XYZ ... Threats and Mitigations
+
+Todo: Start simple by brainstorming threats and assigning the status NEEDS_MITIGATION.
+Todo: Then take a systematic approach and enumerate affected components and threat categories.
+
+ID: T_0001
+Type: Threat
+Name: ...
+Affected: Demo_Actor
+Category: Information_disclosure
+Description: ...
+Status: NEEDS_MITIGATION
+
+ID: T_0002
+Type: Threat
+Name: ...
+Affected: Demo_Database
+Category: Spoofing
+Description: This is a demo threat with status WILL_BE_TAMED, because it has one OPEN and one DONE Mitigation.
+Mitigation: M_0001
+Mitigation: M_0002
+Status: WILL_BE_TAMED
+
+ID: M_0001
+Type: Mitigation
+Name: ...
+Category: Secure_operation
+Description: ...
+Status: DONE
+
+ID: M_0002
+Type: Mitigation
+Name: ...
+Category: System_design
+Description: ...
+Ticket: EXTERNAL_TOOL_ID_12345
+Status: OPEN
+
+
+
+
+H2: XYZ ... Some more Threats and Mitigations
+Todo: Feel free to add H2 subsections that fit your needs
+
+ID: T_0003
+Type: Threat
+Name: ...
+Affected: Demo_Actor
+Category: Information_disclosure
+Description: ...
+Mitigation: M_0001
+Mitigation: M_0003
+Status: TAMED
+
+ID: M_0003
+Type: Mitigation
+Name: ...
+Category: Security_test
+Description: ...
+Status: DONE
